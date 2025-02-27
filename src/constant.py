@@ -5,7 +5,7 @@ data_folder = "./data/" # Directory which stores PDF files
 # ----- llm.py -----
 
 model_name = "TinyLLaMA/TinyLLaMA-1.1B-Chat-v1.0"
-max_new_tokens = 1024 # Max token generated
+max_new_tokens = 256 # Max token generated
 
 # ----- vectordb.py -----
 

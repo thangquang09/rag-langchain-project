@@ -1,6 +1,8 @@
 from langchain import hub
 from langchain_core.output_parsers.string import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
+from langchain_huggingface import HuggingFaceEmbeddings
+from sklearn.metrics.pairwise import cosine_similarity
 import re
 
 class CustomStrOutputParser(StrOutputParser):
@@ -22,36 +24,43 @@ class RAG:
     def __init__(self, llm):
         self.llm = llm
         self.prompt = hub.pull("rlm/rag-prompt")
+        self.embedding = HuggingFaceEmbeddings()
         self.str_parser = CustomStrOutputParser()
         self.no_data_message = "I apologize, but I couldn't find any relevant information in the provided documents to answer your question. Please try asking something related to the content of the documents."
         
     def get_chain(self, retriever):
-
-        def check_context(input_dict):
-            if not input_dict["context"].strip():
-                return {
-                    "context": "", 
-                    "question": input_dict["question"], 
-                    "no_data": True
-                }
-            return {**input_dict, "no_data": False}
-
-        def generate_answer(input_dict):
-            if input_dict.get("no_data", False):
+        # Function to deduplicate documents
+        def deduplicate_docs(docs, similarity_threshold=0.95):
+            if not docs:
+                return []
+            embeddings = [self.embedding.embed_query(doc.page_content) for doc in docs]
+            unique_docs = [docs[0]]
+            for i in range(1, len(docs)):
+                sim = cosine_similarity([embeddings[i]], [embeddings[j] for j in range(len(unique_docs))])
+                if max(sim[0]) < similarity_threshold:  # Nếu không quá giống
+                    unique_docs.append(docs[i])
+            return unique_docs
+        
+        # Create the RAG chain
+        def rag_chain(query):
+            # Retrieve and deduplicate documents
+            docs = deduplicate_docs(retriever(query))
+            
+            # If no documents found, return the no_data_message
+            if not docs:
                 return self.no_data_message
-            return self.llm.invoke(self.prompt.invoke(input_dict))
-
-        rag_chain = (
-            {
-                "context": lambda x: self.format_docs(retriever.invoke(x)),
-                "question": lambda x: x
-            }
-            | RunnablePassthrough.assign(no_data=lambda x: not x["context"].strip())
-            | (lambda x: self.no_data_message if x["no_data"] else self.llm.invoke(self.prompt.invoke(x)))
-            | self.str_parser
-        )
+            
+            # Process with standard RAG pipeline
+            context = self.format_docs(docs)
+            prompt_result = self.prompt.invoke({"context": context, "question": query})
+            llm_result = self.llm.invoke(prompt_result)
+            return self.str_parser.invoke(llm_result)
         
         return rag_chain
+        
+
+    def format_docs(self, docs):
+        return "\n\n".join(doc.page_content for doc in docs)
     
     def format_docs(self, docs):
         """Format documents and remove duplicates based on content"""

@@ -25,7 +25,7 @@ def get_model(
             low_cpu_mem_usage=True
         )
     except Exception as e:
-        print("No quantization because:", e)
+        print("No quantization model")
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
             # quantization_config=nf4_config,

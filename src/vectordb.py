@@ -34,6 +34,7 @@ class VectorDatabase:
 
     def create_vectordb(self, documents: List[Document]):
         """Create vector database from documents"""
+        print("Creating Vector Database")
         self.vectordb = self.vectordb_class.from_documents(
             documents=documents,
             embedding=self.embedding,
@@ -60,13 +61,26 @@ class VectorDatabase:
             "k": kwargs.get("k", 5),
             "score_threshold": self.threshold,
         }
-        # Suppress the relevance score warning
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", category=UserWarning)
-            return self.vectordb.as_retriever(
-                search_type=search_type,
-                search_kwargs=search_kwargs
-            )
+        
+        # Create a retriever that suppresses all warnings
+        retriever = self.vectordb.as_retriever(
+            search_type=search_type,
+            search_kwargs=search_kwargs
+        )
+        
+        # Create a wrapper function to suppress warnings during retrieval
+        def silent_retriever(query):
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=UserWarning)
+                warnings.filterwarnings("ignore", message="Relevance scores must be between 0 and 1")
+                try:
+                    return retriever.invoke(query)
+                except Exception:
+                    # Return empty list if anything goes wrong
+                    return []
+        
+        # Return the modified silent retriever
+        return silent_retriever
 
 if __name__ == "__main__":
     pass

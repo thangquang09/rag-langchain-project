@@ -26,7 +26,7 @@ else:
     vectordb = VectorDatabase()
 
 retriever = vectordb.get_retriever()
-model = get_model(temparature=0.1)
+model = get_model(temparature=0.7)
 rag_chain = RAG(llm=model).get_chain(retriever=retriever)
 
 # ------ Pipeline ------
@@ -43,7 +43,7 @@ def QAPipeline():
         print("\nSearching for relevant information...")
         
         start_time = time.time()
-        result = rag_chain.invoke(user_question.question)
+        result = rag_chain(query=user_question.question)
         time_taken = time.time() - start_time
         
         answer = AnswerQA(answer=result)
