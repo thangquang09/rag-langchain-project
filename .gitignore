@@ -1,3 +1,4 @@
 data
 chromadb
 src/__pycache__
+.env
