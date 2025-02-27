@@ -39,8 +39,8 @@ running_type = select_running_type()
 if running_type == 1:
     model_name = select_local_model()
     llm = get_local_model(model_name=model_name, temparature=0.7)
-elif model_name == 2:
-    llm = get_api_model()
+elif running_type == 2:
+    llm = get_api_model(temparature=0.7)
 
 
 ## ----- Make RAG Chain -----

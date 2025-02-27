@@ -16,13 +16,13 @@ def get_api_model(
     load_dotenv()
     api_key = os.getenv("GOOGLE_API_KEY")
     
-    llm = ChatGoogleGenerativeAI(
+    return ChatGoogleGenerativeAI(
         api_key=api_key,
         model=model_name,
-        temperature=0.7,
-        max_tokens=256,
+        max_tokens=max_new_tokens,
         **kwargs
     )
+
 
 def get_local_model(
     model_name: str = model_name,
@@ -63,11 +63,10 @@ def get_local_model(
         device_map="auto"
     )
 
-    llm = HuggingFacePipeline(
+    return HuggingFacePipeline(
         pipeline=model_pipeline,
         model_kwargs=kwargs
     )
-    return llm
 
 if __name__ == "__main__":
     pass
