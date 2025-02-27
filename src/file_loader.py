@@ -1,4 +1,5 @@
 from constant import data_folder
+from download import download_pdfs
 
 from typing import List, Union
 from tqdm import tqdm
@@ -10,8 +11,11 @@ import os
 import multiprocessing
 
 
+if not os.path.exists(data_folder):
+    download_pdfs()
 
 file_paths = [os.path.join(data_folder, path) for path in os.listdir(data_folder)]
+
 
 # ------------------ Useful Function ----------------------------
 def remove_non_utf8_character(page_content: str) -> str:
