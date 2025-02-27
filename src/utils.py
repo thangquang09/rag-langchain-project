@@ -46,6 +46,7 @@ def select_local_model() -> str:
         choice_idx = int(choice)
         if 0 <= choice_idx < len(models):
             model_name = models[choice_idx]
+            return model_name # dont need to check
         else:
             print(f"Index {choice_idx} is out of range. Using the default model.")
             model_name = models[0]
