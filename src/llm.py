@@ -3,9 +3,28 @@ from constant import model_name, max_new_tokens
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline, BitsAndBytesConfig
 from langchain_huggingface import HuggingFacePipeline
+from langchain_google_genai import ChatGoogleGenerativeAI
 
+def get_api_model(
+    model_name: str = "gemini-2.0-flash",
+    max_new_tokens: int = max_new_tokens,
+    **kwargs
+):
+    from dotenv import load_dotenv
+    import os
 
-def get_model(
+    load_dotenv()
+    api_key = os.getenv("GOOGLE_API_KEY")
+    
+    llm = ChatGoogleGenerativeAI(
+        api_key=api_key,
+        model=model_name,
+        temperature=0.7,
+        max_tokens=256,
+        **kwargs
+    )
+
+def get_local_model(
     model_name: str = model_name,
     max_new_tokens: int = max_new_tokens,
     **kwargs
@@ -24,8 +43,9 @@ def get_model(
             quantization_config=nf4_config,
             low_cpu_mem_usage=True
         )
+        print("Quantization: True")
     except Exception as e:
-        print("No quantization model")
+        print("Quantization: False because error")
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
             # quantization_config=nf4_config,
