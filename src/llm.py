@@ -1,10 +1,8 @@
 from constant import model_name, max_new_tokens
 
-# import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline, BitsAndBytesConfig
 from langchain_huggingface import HuggingFacePipeline
 from langchain_google_genai import ChatGoogleGenerativeAI
-
 import torch
 
 def get_api_model(

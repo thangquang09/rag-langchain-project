@@ -1,5 +1,4 @@
 from typing import Optional
-import time
 from pydantic import BaseModel, Field
 
 from constant import models
@@ -9,6 +8,7 @@ from llm import get_local_model, get_api_model
 from rag import RAG
 from utils import select_local_model, select_running_type
 
+import time
 
 class InputQA(BaseModel):
     question: str = Field(..., title="Question to ask the model")
