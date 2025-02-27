@@ -63,7 +63,7 @@ def select_local_model() -> str:
 
 def select_running_type() -> int:
     while True:
-        running_type = input("Do you want to run local or call API?\n[1]: local\n[2]: API")
+        running_type = input("Do you want to run local or call API?\n[1]: local\n[2]: API\n\tChoice: ")
         try:
             running_type = int(running_type)
             if running_type == 1 or running_type == 2:

@@ -7,6 +7,7 @@ from utils import select_local_model, select_running_type
 
 from pydantic import BaseModel, Field
 import time
+import streamlit as st
 
 
 class InputQA(BaseModel):
@@ -46,18 +47,33 @@ elif running_type == 2:
 ## ----- Make RAG Chain -----
 rag_chain = RAG(llm=llm).get_chain(retriever=retriever)
 
+## ----- StreamLit ------
+# === THIẾT LẬP GIAO DIỆN TRANG WEB ===
+def setup_page():
+    """
+    Cấu hình trang web cơ bản
+    """
+    st.set_page_config(
+        page_title="AI Assistant",  # Tiêu đề tab trình duyệt
+        page_icon="💬",  # Icon tab
+        layout="wide"  # Giao diện rộng
+    )
+
+def initialize_app():
+    setup_page()
+
 # ------ Pipeline ------
 def QAPipeline():
     while True:
         print("\n" + "="*50)
-        question = input("Ask me anything (or 'quit' to exit): ")
+        question = input("User input (or 'quit' to exit): ")
         
         if question.lower() == 'quit':
             print("Goodbye!")
             break
             
         user_question = InputQA(question=question)
-        print("\nSearching for relevant information...")
+        print("\nSearching for relevant information...\n")
         
         start_time = time.time()
         result = rag_chain(query=user_question.question)
@@ -65,11 +81,12 @@ def QAPipeline():
         
         answer = AnswerQA(answer=result)
         
-        print("\nResults:")
-        print("-"*50)
-        print(f"Q: {user_question.question}")
-        print(f"A: {answer.answer}")
-        print(f"Time: {time_taken:.2f} seconds")
+        # print("\nResults:")
+        # print("-"*50)
+        # print(f"Q: {user_question.question}")
+        print(f"Answer: {answer.answer}")
+        print(f"Time: {time_taken:.2f} seconds\n")
 
 if __name__ == "__main__":
+    # initialize_app()
     QAPipeline()

@@ -1,4 +1,4 @@
-from constant import load_new_vectordb, threshold
+from constant import load_new_vectordb, threshold, K
 
 from typing import Union, List
 from langchain_chroma import Chroma
@@ -58,7 +58,7 @@ class VectorDatabase:
     def get_retriever(self, search_type="similarity_score_threshold", **kwargs):
         """Get retriever with similarity score threshold"""
         search_kwargs = {
-            "k": kwargs.get("k", 5),
+            "k": kwargs.get("k", K),
             "score_threshold": self.threshold,
         }
         

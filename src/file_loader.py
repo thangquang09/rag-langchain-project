@@ -24,24 +24,9 @@ def remove_non_utf8_character(page_content: str) -> str:
     return processed_content
 
 def load_pdf_file(file_path: str) -> list:
-
-    loader = PyPDFLoader(
-        file_path,
-        extract_images=True,
-        mode="page",
-    )
-
-    async def load_pages():
-        pages = []
-        async for page in loader.alazy_load():
-            pages.append(page)
-        return pages
-
-    pages = asyncio.run(load_pages())
-
+    pages = PyPDFLoader(file_path, extract_images=True).load()
     for page in pages:
         page.page_content = remove_non_utf8_character(page.page_content)
-
     return pages
 
 def get_num_cpu():
