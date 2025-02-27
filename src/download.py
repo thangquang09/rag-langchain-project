@@ -35,6 +35,10 @@ file_links = [
     {
         "title": "Attention Is All You Need",
         "url": "https://arxiv.org/pdf/1706.03762"
+    },
+    {
+        "title": "Vat ly lop 12",
+        "url": "https://84864c160d.vws.vegacdn.vn//Data/hcmedu/thptnguyentatthanh/2021_9/ly-12-co-ban_79202192648.pdf"
     }
 ]
 
