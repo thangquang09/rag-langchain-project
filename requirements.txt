@@ -1,15 +1,11 @@
-wget
-tqdm
-typing
-langchain
-langchain_community
-langchain_text_splitters
-asyncio
-multiprocessing
-torch
-transformers
-langchain_huggingface
-# bnb
-# accelarate
-pydantic
-langchain_core
+langchain==0.3.19
+langchain_chroma==0.2.2
+langchain_community==0.3.18
+langchain_core==0.3.40
+langchain_huggingface==0.1.2
+langchain_text_splitters==0.3.6
+pydantic==2.10.6
+torch==2.3.0
+tqdm==4.67.1
+transformers==4.49.0
+wget==3.2
