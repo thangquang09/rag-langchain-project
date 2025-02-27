@@ -1,0 +1,15 @@
+wget
+tqdm
+typing
+langchain
+langchain_community
+langchain_text_splitters
+asyncio
+multiprocessing
+torch
+transformers
+langchain_huggingface
+# bnb
+# accelarate
+pydantic
+langchain_core
