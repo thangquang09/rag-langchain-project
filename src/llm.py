@@ -5,6 +5,8 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline, BitsAndB
 from langchain_huggingface import HuggingFacePipeline
 from langchain_google_genai import ChatGoogleGenerativeAI
 
+import torch
+
 def get_api_model(
     model_name: str = "gemini-2.0-flash",
     max_new_tokens: int = max_new_tokens,

@@ -1,3 +1,7 @@
+from typing import Optional
+import time
+from pydantic import BaseModel, Field
+
 from constant import models
 from file_loader import Loader, file_paths, get_num_cpu
 from vectordb import VectorDatabase
@@ -5,65 +9,50 @@ from llm import get_local_model, get_api_model
 from rag import RAG
 from utils import select_local_model, select_running_type
 
-from pydantic import BaseModel, Field
-import time
-import streamlit as st
-
 
 class InputQA(BaseModel):
     question: str = Field(..., title="Question to ask the model")
+
 
 class AnswerQA(BaseModel):
     answer: str = Field(..., title="Answer from the model")
 
 
-# ----- Load Resources -----
-
-## ----- PDF REAEDER ------
-loader = Loader()
-reload_pdf = input("Load new PDFs? [Y]/[N] (If this is the first time, please select [Y]): ")
-
-if reload_pdf.lower() == "y":
-    documents = loader.load(file_paths, workers=get_num_cpu())
-    load_new_vectordb = True
-    vectordb = VectorDatabase(documents=documents, load_new_vectordb=load_new_vectordb)
-else:
-    documents = None
-    vectordb = VectorDatabase()
-
-retriever = vectordb.get_retriever()
-
-## ----- Model Selection ------
-
-running_type = select_running_type()
-
-if running_type == 1:
-    model_name = select_local_model()
-    llm = get_local_model(model_name=model_name, temparature=0.7)
-elif running_type == 2:
-    llm = get_api_model(temparature=0.7)
+def setup_vectordb() -> tuple[VectorDatabase, any]:
+    """Set up vector database and retriever"""
+    loader = Loader()
+    reload_pdf = input("Load new PDFs? [Y]/[N] (If this is the first time, please select [Y]): ").lower()
+    
+    if reload_pdf == "y":
+        documents = loader.load(file_paths, workers=get_num_cpu())
+        vectordb = VectorDatabase(documents=documents, load_new_vectordb=True)
+    else:
+        vectordb = VectorDatabase()
+    
+    return vectordb, vectordb.get_retriever()
 
 
-## ----- Make RAG Chain -----
-rag_chain = RAG(llm=llm).get_chain(retriever=retriever)
+def setup_llm():
+    """Set up language model based on user choice"""
+    running_type = select_running_type()
+    
+    if running_type == 1:
+        model_name = select_local_model()
+        return get_local_model(model_name=model_name, temparature=0.7)
+    else:
+        return get_api_model(temparature=0.7)
 
-## ----- StreamLit ------
-# === THIẾT LẬP GIAO DIỆN TRANG WEB ===
-def setup_page():
-    """
-    Cấu hình trang web cơ bản
-    """
-    st.set_page_config(
-        page_title="AI Assistant",  # Tiêu đề tab trình duyệt
-        page_icon="💬",  # Icon tab
-        layout="wide"  # Giao diện rộng
-    )
 
-def initialize_app():
-    setup_page()
+def process_query(query: str, rag_chain: any) -> tuple[str, float]:
+    """Process a user query and return the answer and processing time"""
+    start_time = time.time()
+    result = rag_chain(query=query)
+    time_taken = time.time() - start_time
+    return result, time_taken
 
-# ------ Pipeline ------
-def QAPipeline():
+
+def qa_pipeline(rag_chain: any):
+    """Main QA interaction loop"""
     while True:
         print("\n" + "="*50)
         question = input("User input (or 'quit' to exit): ")
@@ -71,22 +60,24 @@ def QAPipeline():
         if question.lower() == 'quit':
             print("Goodbye!")
             break
-            
-        user_question = InputQA(question=question)
+        
         print("\nSearching for relevant information...\n")
+        result, time_taken = process_query(question, rag_chain)
         
-        start_time = time.time()
-        result = rag_chain(query=user_question.question)
-        time_taken = time.time() - start_time
-        
-        answer = AnswerQA(answer=result)
-        
-        # print("\nResults:")
-        # print("-"*50)
-        # print(f"Q: {user_question.question}")
-        print(f"Answer: {answer.answer}")
+        print(f"Answer: {result}")
         print(f"Time: {time_taken:.2f} seconds\n")
 
+
+def main():
+    """Main application entry point"""
+    # Set up resources
+    vectordb, retriever = setup_vectordb()
+    llm = setup_llm()
+    rag_chain = RAG(llm=llm).get_chain(retriever=retriever)
+    
+    # Run the QA pipeline
+    qa_pipeline(rag_chain)
+
+
 if __name__ == "__main__":
-    # initialize_app()
-    QAPipeline()
+    main()
