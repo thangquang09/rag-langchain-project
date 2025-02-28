@@ -1,4 +1,4 @@
-from constant import data_folder
+from constant import data_folder, chunk_size, chunk_overlap
 from download import download_pdfs
 
 from typing import List, Union
@@ -81,8 +81,8 @@ class Loader:
         self,
         file_type: str = "pdf",
         split_kwargs: dict = {
-            "chunk_size": 300,
-            "chunk_overlap": 0
+            "chunk_size": chunk_size,
+            "chunk_overlap": chunk_overlap
         } 
     ) -> None:
         self.file_type = file_type

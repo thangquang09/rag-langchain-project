@@ -1,12 +1,12 @@
 from typing import Optional
 from pydantic import BaseModel, Field
 
-from constant import models
-from file_loader import Loader, file_paths, get_num_cpu
+from constant import models, model_kwargs
+from file_loader import Loader, get_num_cpu
 from vectordb import VectorDatabase
 from llm import get_local_model, get_api_model
 from rag import RAG
-from utils import select_local_model, select_running_type
+from utils import select_local_model, select_running_type, get_file_paths
 
 import time
 
@@ -21,6 +21,7 @@ class AnswerQA(BaseModel):
 def setup_vectordb() -> tuple[VectorDatabase, any]:
     """Set up vector database and retriever"""
     loader = Loader()
+    file_paths = get_file_paths()
     reload_pdf = input("Load new PDFs? [Y]/[N] (If this is the first time, please select [Y]): ").lower()
     
     if reload_pdf == "y":
@@ -38,9 +39,9 @@ def setup_llm():
     
     if running_type == 1:
         model_name = select_local_model()
-        return get_local_model(model_name=model_name, temparature=0.7)
+        return get_local_model(model_name=model_name, **model_kwargs)
     else:
-        return get_api_model(temparature=0.7)
+        return get_api_model(**model_kwargs)
 
 
 def process_query(query: str, rag_chain: any) -> tuple[str, float]:

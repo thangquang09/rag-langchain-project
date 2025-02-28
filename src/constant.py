@@ -1,6 +1,8 @@
 # ----- download.py & file_loader.py ------
 
 data_folder = "./data/" # Directory which stores PDF files
+chunk_size = 300
+chunk_overlap = 0
 
 # ----- llm.py -----
 
@@ -12,10 +14,13 @@ models = [
 
 model_name = models[0]
 max_new_tokens = 1024 # Max token generated
+model_kwargs = {
+    "temparature": 0
+}
 
 # ----- vectordb.py -----
 
 persist_directory = "./chromadb"
 load_new_vectordb = False # True: Reinitiate vectordb automatically when run application
 threshold=0.2
-K=5
+K=4
