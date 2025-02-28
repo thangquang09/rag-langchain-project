@@ -1,10 +1,10 @@
 import streamlit as st
 from constant import models
-from file_loader import Loader, file_paths, get_num_cpu
+from file_loader import Loader, get_num_cpu, get_file_paths
 from vectordb import VectorDatabase
 from llm import get_local_model, get_api_model
 from rag import RAG
-from utils import select_running_type
+from utils import select_running_type, initial_data
 from pydantic import BaseModel, Field
 import time
 
@@ -89,7 +89,7 @@ def main():
         page_icon="💬",
         layout="wide"
     )
-    
+    initial_data()
     # Khởi tạo session state
     if "model_loaded" not in st.session_state:
         st.session_state.model_loaded = False

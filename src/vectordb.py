@@ -1,4 +1,4 @@
-from constant import load_new_vectordb, threshold, K
+from constant import load_new_vectordb, threshold, K, persist_directory
 
 from typing import Union, List
 from langchain_chroma import Chroma
@@ -14,7 +14,7 @@ class VectorDatabase:
         documents: List[Document] = None,
         vectordb_class: Union[type(Chroma), type(FAISS)] = Chroma,
         embedding = HuggingFaceEmbeddings(),
-        persist_directory: str = "./chromadb",
+        persist_directory: str = persist_directory,
         load_new_vectordb: bool = load_new_vectordb,
         threshold: int = threshold
     ):

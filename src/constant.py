@@ -15,6 +15,7 @@ max_new_tokens = 1024 # Max token generated
 
 # ----- vectordb.py -----
 
+persist_directory = "./chromadb"
 load_new_vectordb = False # True: Reinitiate vectordb automatically when run application
 threshold=0.2
 K=5

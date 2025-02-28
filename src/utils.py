@@ -1,9 +1,25 @@
-from constant import models
+from constant import models, data_folder, persist_directory
+from download import download_pdfs
+from file_loader import Loader, get_num_cpu, get_file_paths
+from vectordb import VectorDatabase
 
 from dotenv import load_dotenv
 import os
 import requests
 
+
+def initial_data():
+    flag = False
+    if not os.path.exists(data_folder):
+        download_pdfs()
+        flag = True
+    if not os.path.exists(persist_directory):
+        file_paths = get_file_paths()
+        loader = Loader()
+        documents = loader.load(file_paths, workers=get_num_cpu())
+        vectordb = VectorDatabase(documents=documents, load_new_vectordb=True)
+        flag = True
+    return flag
 
 
 def check_model_exists(model_name):

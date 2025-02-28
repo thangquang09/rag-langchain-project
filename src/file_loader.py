@@ -11,13 +11,11 @@ import os
 import multiprocessing
 
 
-if not os.path.exists(data_folder):
-    download_pdfs()
-
-file_paths = [os.path.join(data_folder, path) for path in os.listdir(data_folder)]
-
 
 # ------------------ Useful Function ----------------------------
+def get_file_paths():
+    return [os.path.join(data_folder, path) for path in os.listdir(data_folder)]
+
 def remove_non_utf8_character(page_content: str) -> str:
     processed_content = ''.join(char for char in page_content if ord(char) < 128)
 
@@ -103,7 +101,7 @@ class Loader:
         if isinstance(pdf_files, str):
             pdf_files = [pdf_files]
         
-        pdf_files = [file_path for file_path in file_paths if is_valid_pdf(file_path)]
+        pdf_files = [file_path for file_path in pdf_files if is_valid_pdf(file_path)]
         
         doc_loaded = self.doc_loader(pdf_files, workers=workers)
         doc_splitted = self.text_splitter(doc_loaded)
@@ -113,7 +111,7 @@ class Loader:
 # -------------- Main -----------------------------
 
 def main():
-    # valid_file_paths = [file_path for file_path in file_paths if is_valid_pdf(file_path)]
+    file_paths = get_file_paths()
     num_cpu = get_num_cpu()
     loader = Loader()
 
