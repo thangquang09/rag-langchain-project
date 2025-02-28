@@ -1,8 +1,8 @@
 # ----- download.py & file_loader.py ------
 
 data_folder = "./data/" # Directory which stores PDF files
-chunk_size = 300
-chunk_overlap = 0
+chunk_size = 10000 # Can be lower if run local
+chunk_overlap = 500
 
 # ----- llm.py -----
 
