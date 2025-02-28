@@ -1,5 +1,5 @@
 import streamlit as st
-from constant import models
+from constant import models, model_kwargs
 from file_loader import Loader, get_num_cpu, get_file_paths
 from vectordb import VectorDatabase
 from llm import get_local_model, get_api_model
@@ -149,9 +149,9 @@ def main():
         with st.spinner(f"Đang tải mô hình {model_name}..."):
             # Tải mô hình phù hợp
             if running_type == "Local Model":
-                llm = get_local_model(model_name=model_name, temperature=0.7)
+                llm = get_local_model(model_name=model_name, **model_kwargs)
             elif running_type == "API Model":
-                llm = get_api_model(temperature=0.7)
+                llm = get_api_model(**model_kwargs)
                 
             # Tạo RAG Chain
             st.session_state.rag_chain = RAG(llm=llm).get_chain(retriever=retriever)
