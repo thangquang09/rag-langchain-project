@@ -1,4 +1,6 @@
-from langchain import hub
+from constant import prompt
+
+# from langchain import hub
 from langchain_core.output_parsers.string import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -23,10 +25,11 @@ class CustomStrOutputParser(StrOutputParser):
 class RAG:
     def __init__(self, llm):
         self.llm = llm
-        self.prompt = hub.pull("rlm/rag-prompt")
+        self.prompt = prompt
         self.embedding = HuggingFaceEmbeddings()
         self.str_parser = CustomStrOutputParser()
         self.no_data_message = "I apologize, but I couldn't find any relevant information in the provided documents to answer your question. Please try asking something related to the content of the documents."
+        
         
     def get_chain(self, retriever):
         # Function to deduplicate documents
