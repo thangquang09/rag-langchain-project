@@ -4,7 +4,7 @@ from file_loader import Loader, get_num_cpu, get_file_paths
 from vectordb import VectorDatabase
 from llm import get_local_model, get_api_model
 from rag import RAG
-from utils import select_running_type, initial_data
+from utils import select_running_type, initial_data, check_data_exists
 from pydantic import BaseModel, Field
 import time
 
@@ -89,7 +89,30 @@ def main():
         page_icon="💬",
         layout="wide"
     )
-    initial_data()
+    # Check data and vector DB existence
+    data_status = check_data_exists()
+    
+    # Handle different initialization scenarios
+    if data_status != 0:
+        message = {
+            1: "Đang tải xuống dữ liệu PDF...",
+            2: "Đang tạo Vector Database...",
+            3: "Đang tải xuống dữ liệu PDF và tạo Vector Database..."
+        }
+        
+        with st.spinner(message[data_status]):
+            # Initialize data based on what's missing
+            initial_data(data_status)
+            
+            success_message = {
+                1: "Đã tải xuống dữ liệu PDF thành công!",
+                2: "Đã tạo Vector Database thành công!",
+                3: "Đã khởi tạo dữ liệu và Vector Database thành công!"
+            }
+            st.success(success_message[data_status])
+    
+    # Get file paths after initialization is complete (or if no initialization was needed)
+    file_paths = get_file_paths()
     # Khởi tạo session state
     if "model_loaded" not in st.session_state:
         st.session_state.model_loaded = False

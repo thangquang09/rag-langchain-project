@@ -6,20 +6,39 @@ from vectordb import VectorDatabase
 from dotenv import load_dotenv
 import os
 import requests
+def check_data_exists():
+    """Check if data folder and persist directory exist.
+    Returns:
+        int: 1 if data_folder doesn't exist but persist_directory does
+             2 if persist_directory doesn't exist but data_folder does
+             3 if neither data_folder nor persist_directory exist
+             0 if both exist
+    """
+    data_missing = not os.path.exists(data_folder)
+    vector_db_missing = not os.path.exists(persist_directory)
+    
+    if data_missing and vector_db_missing:
+        return 3
+    elif data_missing:
+        return 1
+    elif vector_db_missing:
+        return 2
+    return 0
 
 
-def initial_data():
-    flag = False
-    if not os.path.exists(data_folder):
+def initial_data(option: int):
+    """Initialize data based on the option.
+    Args:
+        option: 1 = download PDFs, 2 = create vector DB, 3 = both
+    """
+    if option in (1, 3):
         download_pdfs()
-        flag = True
-    if not os.path.exists(persist_directory):
+    
+    if option in (2, 3):
         file_paths = get_file_paths()
         loader = Loader()
         documents = loader.load(file_paths, workers=get_num_cpu())
-        vectordb = VectorDatabase(documents=documents, load_new_vectordb=True)
-        flag = True
-    return flag
+        VectorDatabase(documents=documents, load_new_vectordb=True)
 
 
 def check_model_exists(model_name):
