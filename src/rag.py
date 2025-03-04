@@ -1,14 +1,8 @@
 from constant import prompt
 
-# from langchain import hub
 from langchain_core.output_parsers.string import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 from langchain_huggingface import HuggingFaceEmbeddings
 from sklearn.metrics.pairwise import cosine_similarity
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_community.chat_message_histories import ChatMessageHistory
 import re
 
 class CustomStrOutputParser(StrOutputParser):
