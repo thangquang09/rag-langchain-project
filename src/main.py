@@ -44,15 +44,16 @@ def setup_llm():
         return get_api_model(**model_kwargs)
 
 
-def process_query(query: str, rag_chain: any) -> tuple[str, float]:
+def process_query(query: str, rag_chain: any, config: any) -> tuple[str, float]:
     """Process a user query and return the answer and processing time"""
     start_time = time.time()
-    result = rag_chain(query=query)
+    # Use the config as a parameter for the chain
+    result = rag_chain(query=query, config=config)
     time_taken = time.time() - start_time
     return result, time_taken
 
 
-def qa_pipeline(rag_chain: any):
+def qa_pipeline(rag_chain: any, config: any, big_RAG: any):
     """Main QA interaction loop"""
     while True:
         print("\n" + "="*50)
@@ -63,10 +64,11 @@ def qa_pipeline(rag_chain: any):
             break
         
         print("\nSearching for relevant information...\n")
-        result, time_taken = process_query(question, rag_chain)
+        result, time_taken = process_query(question, rag_chain, config)
         
         print(f"Answer: {result}")
         print(f"Time: {time_taken:.2f} seconds\n")
+        # print(big_RAG.get_store())
 
 
 def main():
@@ -74,10 +76,15 @@ def main():
     # Set up resources
     vectordb, retriever = setup_vectordb()
     llm = setup_llm()
-    rag_chain = RAG(llm=llm).get_chain(retriever=retriever)
-    
+    rag = RAG(llm=llm)
+    rag_chain = rag.get_chain_with_history(retriever=retriever)
+
+    session_id = "user123"
+    config = {"configurable": {"session_id": session_id}}
+
+
     # Run the QA pipeline
-    qa_pipeline(rag_chain)
+    qa_pipeline(rag_chain, config, rag)
 
 
 if __name__ == "__main__":

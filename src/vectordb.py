@@ -1,4 +1,4 @@
-from constant import load_new_vectordb, threshold, K, persist_directory
+from constant import load_new_vectordb, K, persist_directory
 
 from typing import Union, List
 from langchain_chroma import Chroma
@@ -16,13 +16,11 @@ class VectorDatabase:
         embedding = HuggingFaceEmbeddings(),
         persist_directory: str = persist_directory,
         load_new_vectordb: bool = load_new_vectordb,
-        threshold: int = threshold
     ):
     
         self.vectordb_class = vectordb_class
         self.embedding = embedding
         self.persist_directory = persist_directory
-        self.threshold = threshold
         
         # Check if vector DB exists and whether to load it
         if os.path.exists(self.persist_directory) and not load_new_vectordb:
@@ -55,11 +53,10 @@ class VectorDatabase:
                 embeddings=self.embedding
             )
             
-    def get_retriever(self, search_type="similarity_score_threshold", **kwargs):
-        """Get retriever with similarity score threshold"""
+    def get_retriever(self, search_type="similarity", **kwargs):
+        """Get retriever with similarity search based on K"""
         search_kwargs = {
             "k": kwargs.get("k", K),
-            "score_threshold": self.threshold,
         }
         
         # Create a retriever that suppresses all warnings
@@ -72,7 +69,6 @@ class VectorDatabase:
         def silent_retriever(query):
             with warnings.catch_warnings():
                 warnings.filterwarnings("ignore", category=UserWarning)
-                warnings.filterwarnings("ignore", message="Relevance scores must be between 0 and 1")
                 try:
                     return retriever.invoke(query)
                 except Exception:
