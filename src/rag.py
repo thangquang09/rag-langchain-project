@@ -47,10 +47,8 @@ class RAG:
         # Create the RAG chain
         def rag_chain(query):
             # Retrieve and deduplicate documents
-            docs = self.deduplicate_docs(retriever(query))
+            context = self.deduplicate_docs(retriever(query))
             
-            # Process with standard RAG pipeline
-            context = self.format_docs(docs)
             prompt_result = self.prompt.invoke({"context": context, "question": query})
             llm_result = self.llm.invoke(prompt_result)
             return self.str_parser.invoke(llm_result)
@@ -74,10 +72,8 @@ class RAG:
             history = self.store[session_id]
             
             # Retrieve and deduplicate documents
-            docs = self.deduplicate_docs(retriever(query))
+            context = self.deduplicate_docs(retriever(query))
             
-            # Process with standard RAG pipeline
-            context = self.format_docs(docs)
             prompt_result = self.prompt.invoke({
                 "context": context, 
                 "question": query, 
@@ -93,19 +89,7 @@ class RAG:
             return result
         
         return rag_chain
-    
-    def format_docs(self, docs):
-        """Format documents and remove duplicates based on content"""
-        seen = set()
-        unique_docs = []
-        
-        for doc in docs:
-            content = doc.page_content.strip()
-            if content not in seen:
-                seen.add(content)
-                unique_docs.append(doc)
-        
-        return "\n\n".join(doc.page_content for doc in unique_docs)
+
     
 
 
