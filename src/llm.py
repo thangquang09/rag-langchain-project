@@ -1,7 +1,7 @@
-from constant import model_name, max_new_tokens
+from constant import model_name, max_new_tokens, api_key
 
 from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline, BitsAndBytesConfig
-from langchain_huggingface import HuggingFacePipeline
+# from langchain_huggingface import HuggingFacePipeline
 from langchain_google_genai import ChatGoogleGenerativeAI
 import torch
 
@@ -10,11 +10,6 @@ def get_api_model(
     max_new_tokens: int = max_new_tokens,
     **kwargs
 ):
-    from dotenv import load_dotenv
-    import os
-
-    load_dotenv()
-    api_key = os.getenv("GOOGLE_API_KEY")
     
     return ChatGoogleGenerativeAI(
         api_key=api_key,

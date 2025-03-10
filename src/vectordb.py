@@ -1,10 +1,11 @@
-from constant import load_new_vectordb, K, persist_directory
+from constant import load_new_vectordb, K, persist_directory, api_key
+from embedding import TaskOptimizedEmbeddings
 
 from typing import Union, List
 from langchain_chroma import Chroma
 from langchain_community.vectorstores import FAISS
 from langchain.docstore.document import Document
-from langchain_huggingface import HuggingFaceEmbeddings
+# from langchain_huggingface import HuggingFaceEmbeddings
 import os
 import warnings
 
@@ -13,13 +14,12 @@ class VectorDatabase:
         self,
         documents: List[Document] = None,
         vectordb_class: Union[type(Chroma), type(FAISS)] = Chroma,
-        embedding = HuggingFaceEmbeddings(),
+        embedding = None,
         persist_directory: str = persist_directory,
         load_new_vectordb: bool = load_new_vectordb,
     ):
-    
         self.vectordb_class = vectordb_class
-        self.embedding = embedding
+        self.embedding = TaskOptimizedEmbeddings(api_key=api_key)
         self.persist_directory = persist_directory
         
         # Check if vector DB exists and whether to load it

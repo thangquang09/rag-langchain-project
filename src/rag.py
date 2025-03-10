@@ -1,4 +1,5 @@
-from constant import prompt
+from constant import prompt, api_key
+from embedding import TaskOptimizedEmbeddings
 
 from langchain_core.output_parsers.string import StrOutputParser
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -24,7 +25,7 @@ class RAG:
     def __init__(self, llm):
         self.llm = llm
         self.prompt = prompt
-        self.embedding = HuggingFaceEmbeddings()
+        self.embedding = TaskOptimizedEmbeddings(api_key=api_key)
         self.str_parser = CustomStrOutputParser()
         self.store = {}
 
@@ -34,11 +35,17 @@ class RAG:
     def deduplicate_docs(self, docs, similarity_threshold=0.95):
         if not docs:
             return []
-        embeddings = [self.embedding.embed_query(doc.page_content) for doc in docs]
+        
+        if hasattr(self.embedding, "embed_for_similarity"):
+            doc_texts = [doc.page_content for doc in docs]
+            embeddings = self.embedding.embed_for_similarity(doc_texts)
+        else:
+            embeddings = [self.embedding.embed_query(doc.page_content) for doc in docs]
+
         unique_docs = [docs[0]]
         for i in range(1, len(docs)):
             sim = cosine_similarity([embeddings[i]], [embeddings[j] for j in range(len(unique_docs))])
-            if max(sim[0]) < similarity_threshold:  # Nếu không quá giống
+            if max(sim[0]) < similarity_threshold:
                 unique_docs.append(docs[i])
         return unique_docs
 
@@ -80,6 +87,7 @@ class RAG:
                 "chat_history": history
             })
             llm_result = self.llm.invoke(prompt_result)
+            # result = llm_result
             result = self.str_parser.invoke(llm_result)
             
             # Update history (simplified)

@@ -53,7 +53,7 @@ def process_query(query: str, rag_chain: any, config: any) -> tuple[str, float]:
     return result, time_taken
 
 
-def qa_pipeline(rag_chain: any, config: any, big_RAG: any):
+def qa_pipeline(rag_chain: any, config: any):
     """Main QA interaction loop"""
     while True:
         print("\n" + "="*50)
@@ -68,7 +68,6 @@ def qa_pipeline(rag_chain: any, config: any, big_RAG: any):
         
         print(f"Answer: {result}")
         print(f"Time: {time_taken:.2f} seconds\n")
-        # print(big_RAG.get_store())
 
 
 def main():
@@ -84,7 +83,7 @@ def main():
 
 
     # Run the QA pipeline
-    qa_pipeline(rag_chain, config, rag)
+    qa_pipeline(rag_chain, config)
 
 
 if __name__ == "__main__":
