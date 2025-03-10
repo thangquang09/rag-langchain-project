@@ -1,12 +1,19 @@
 import streamlit as st
+import time
+import uuid
+import sys
+import os
+from pydantic import BaseModel, Field
+
+# Add parent directory to path to allow imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from constant import models, model_kwargs
 from file_loader import Loader, get_num_cpu, get_file_paths
 from vectordb import VectorDatabase
 from llm import get_local_model, get_api_model
 from rag import RAG
 from utils import select_running_type, initial_data, check_data_exists
-from pydantic import BaseModel, Field
-import time
 
 class InputQA(BaseModel):
     question: str = Field(..., title="Question to ask the model")
@@ -18,6 +25,10 @@ class AnswerQA(BaseModel):
 def chat_interface(rag_chain):
     st.title("AI Assistant")
     st.write("Hỏi bất kỳ câu hỏi nào và nhận câu trả lời từ trợ lý AI.")
+
+    # Initialize session ID if not exists
+    if "session_id" not in st.session_state:
+        st.session_state.session_id = str(uuid.uuid4())
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
@@ -35,7 +46,13 @@ def chat_interface(rag_chain):
             with st.spinner("Đang xử lý..."):
                 start_time = time.time()
                 user_question = InputQA(question=prompt)
-                result = rag_chain(query=user_question.question)
+                
+                # Create config with session ID
+                config = {"configurable": {"session_id": st.session_state.session_id}}
+                
+                # Pass the config to the rag_chain
+                result = rag_chain(query=user_question.question, config=config)
+                
                 time_taken = time.time() - start_time
                 answer = AnswerQA(answer=result)
                 st.markdown(answer.answer)
@@ -121,6 +138,9 @@ def main():
     if "messages" not in st.session_state:
         st.session_state.messages = []
     
+    if "session_id" not in st.session_state:
+        st.session_state.session_id = str(uuid.uuid4())
+    
     loader = Loader()
 
     # Trong mã chính của bạn
@@ -153,18 +173,38 @@ def main():
             elif running_type == "API Model":
                 llm = get_api_model(**model_kwargs)
                 
-            # Tạo RAG Chain
-            st.session_state.rag_chain = RAG(llm=llm).get_chain(retriever=retriever)
+            # Tạo RAG Chain with history support
+            rag_instance = RAG(llm=llm)
+            st.session_state.rag_chain = rag_instance.get_chain_with_history(retriever=retriever)
             st.session_state.model_loaded = True
             st.sidebar.success(f"Đã tải xong mô hình {model_name}")
     
-        # Thêm nút xóa lịch sử chat vào sidebar
+    # Thêm nút xóa lịch sử chat vào sidebar
     st.sidebar.markdown("---")
     st.sidebar.subheader("Quản lý cuộc hội thoại")
+    
+    # New chat button to create a new conversation
+    if st.sidebar.button("Tạo cuộc hội thoại mới"):
+        st.session_state.messages = []
+        st.session_state.session_id = str(uuid.uuid4())
+        
+        # Clear the chat history in the RAG instance if model is loaded
+        if st.session_state.model_loaded and hasattr(st.session_state.rag_chain, "__globals__"):
+            try:
+                rag_instance = st.session_state.rag_chain.__globals__.get('self', None)
+                if rag_instance and hasattr(rag_instance, 'store'):
+                    rag_instance.store[st.session_state.session_id] = []
+            except:
+                pass
+                
+        st.sidebar.success("Đã tạo cuộc hội thoại mới")
+        st.rerun()
+    
+    # Keep original clear chat history button
     if st.sidebar.button("Xóa lịch sử chat"):
         st.session_state.messages = []
         st.sidebar.success("Đã xóa lịch sử chat")
-        st.rerun()  # Thay thế st.experimental_rerun() bằng st.rerun()
+        st.rerun()
 
     # Hiển thị thông báo nếu chưa tải mô hình
     if not st.session_state.model_loaded:
