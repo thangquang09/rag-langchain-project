@@ -1,4 +1,4 @@
-from constant import models, data_folder, persist_directory
+from constant import models, data_folder, persist_directory, huggingface_key
 from download import download_pdfs
 from file_loader import Loader, get_num_cpu, get_file_paths
 from vectordb import VectorDatabase
@@ -42,8 +42,6 @@ def initial_data(option: int):
 
 
 def check_model_exists(model_name):
-    load_dotenv()
-    huggingface_key = os.getenv("HUGGING_FACE_TOKEN")
 
     if huggingface_key is None:
         print("Please create your HuggingFace Read token!")
