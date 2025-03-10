@@ -1,10 +1,12 @@
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from dotenv import load_dotenv
+import os
 
 # ----- download.py & file_loader.py ------
 
 data_folder = "./data/" # Directory which stores PDF files
-chunk_size = 300 # Can be lower if run local
-chunk_overlap = 0
+chunk_size = 800 # Can be lower if run local
+chunk_overlap = 200
 
 # ----- llm.py -----
 
@@ -51,3 +53,9 @@ prompt = ChatPromptTemplate([
     MessagesPlaceholder(variable_name="chat_history"),
     ("human", human),
 ])
+
+
+# ---- ENVIRONMENT ----
+load_dotenv()
+api_key = os.getenv("GOOGLE_API_KEY")
+huggingface_key = os.getenv("HUGGING_FACE_TOKEN")
