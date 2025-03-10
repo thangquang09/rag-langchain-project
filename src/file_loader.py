@@ -63,9 +63,9 @@ class PDFLoader(BaseLoader):
 class TextSplitter:
     def __init__(
         self,
-        separators: List[str] = ['\n\n', '\n', '', ' '],
-        chunk_size: int = 300,
-        chunk_overlap: int = 0
+        separators: List[str] = ['\n\n', '\n', '. ', '! ', '? ', ':', ';', ' '],
+        chunk_size: int = chunk_size,
+        chunk_overlap: int = chunk_overlap
     ) -> None:
         self.splitter = RecursiveCharacterTextSplitter(
             separators=separators,
