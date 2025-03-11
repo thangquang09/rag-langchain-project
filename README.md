@@ -90,7 +90,7 @@ HUGGING_FACE_TOKEN=your_hugging_face_token
 ### Web Interface
 To run the Streamlit web application:
 ```bash
-python src/app.py
+streamlit run src/app/app.py
 ```
 Then open your browser and navigate to `http://localhost:8501`
 
