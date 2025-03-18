@@ -39,9 +39,9 @@ GOOGLE_API_KEY=your_google_api_key
 HUGGING_FACE_TOKEN=your_hugging_face_token
 ```
 
-3. Build the Docker image:
+3. Pull the Docker image:
 ```bash
-docker build -t rag_app .
+docker pull thangquang09/rag_app:latest
 ```
 
 4. Run the container, mounting your .env file:
