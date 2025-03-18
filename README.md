@@ -27,39 +27,29 @@ This project implements a Retrieval-Augmented Generation (RAG) system using Lang
 
 ### Using Docker (Recommended)
 
-Build the Docker image:
+1. First, create a `.env` file in your project root directory:
 ```bash
-docker build -t rag_app .
+# Create .env file in your local machine
+touch .env
 ```
 
-Run the container:
-```bash
-docker run --name rag_app_container -p 8501:8501 rag_app
-```
-
-After that, access to `localhost:8501` to enjoy the chatbot.
-
-#### Setting up API Keys in Docker
-
-After starting the container, you need to create a `.env` file inside the container:
-
-1. Access the running container:
-```bash
-docker exec -it rag_app_container bash
-```
-
-2. Create and edit the `.env` file:
-```bash
-nano .env
-```
-
-3. Add your API keys to the file:
+2. Add your API keys to the `.env` file:
 ```
 GOOGLE_API_KEY=your_google_api_key
 HUGGING_FACE_TOKEN=your_hugging_face_token
 ```
 
-4. Save and exit (in nano: press Ctrl+X, then Y, then Enter)
+3. Build the Docker image:
+```bash
+docker build -t rag_app .
+```
+
+4. Run the container, mounting your .env file:
+```bash
+docker run --name rag_app_container -p 8501:8501 -v $(pwd)/.env:/app/.env rag_app
+```
+
+After that, access to `localhost:8501` to enjoy the chatbot.
 
 ### Without Docker
 
@@ -76,7 +66,7 @@ pip install -r requirements.txt
 
 3. Create a `.env` file in the project root directory:
 ```bash
-nano .env  # or use any text editor
+touch .env  # or use any text editor
 ```
 
 4. Add your API keys to the `.env` file:
