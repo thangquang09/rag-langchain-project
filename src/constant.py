@@ -5,8 +5,8 @@ import os
 # ----- download.py & file_loader.py ------
 
 data_folder = "./data/" # Directory which stores PDF files
-chunk_size = 800 # Can be lower if run local
-chunk_overlap = 200
+chunk_size = 350 # Can be lower if run local
+chunk_overlap = 50
 
 # ----- llm.py -----
 
